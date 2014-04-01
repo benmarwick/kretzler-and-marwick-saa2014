@@ -1,0 +1,196 @@
+---
+title: "test"
+author: Ian Kretzler & Ben Marwick
+date: Wednesday, March 26, 2014
+output: html_document
+---
+
+# A Brief Case Study: Gender Research and the Role of Feminist Theory
+
+### What is textual macroanalysis?
+
+The conventional way we read scholarly literature is sometimes 
+described as a 'close reading'. This means we read word-by-word
+and mentally thread together the meanings that emerge from sentences and paragraphs to interpret a piece of writing. In recent years an alternative reading method aided by computational methods has emerged. This method, known as 'distant reading', takes the view that text is a data object such that meaning can be extracted through counting, mapping and graphing patterns in 
+the data. We refer to this as 'textual macroanalysis' 
+to identify the data type as text and the level of analysis 
+as macroscopic to refer to a single article as a unit of 
+analysis, compared to the microscopic analysis of close reading
+which concentrates on words or sentences within in article.
+
+### The JSTORr package and R
+
+Perhaps the best known tool for distant reading is the Google
+Books ngram viewer. This allows the user to inspect the rise
+and fall of a word or phrase in 5 million books scanned by Google. A key problem is that we don't know what books are in Google's
+sample. Since we are specifically interested in scholarly articles about archaeology, we chose instead to focus on JSTOR's collection, and wrote software to analyse and visualise words
+in JSTOR's holdings of the journal 'American Antiquity'. Our software is written in the R language and is freely available
+at github.com.
+
+
+```{r setup}
+library(devtools)
+# download and install the package (do this only once ever per computer)
+install_github(repo = "JSTORr", username = "benmarwick")
+library(JSTORr)
+```
+
+
+```{r get-data}
+### These only need to to be done once, then the data is 
+### kept in a Rdata file and that file is loaded for interactive analyis
+### rather than readint in thte CSV files every time. I'm keeping the
+### lines here to show working.
+
+# working with American Antiquity archive from JSTOR
+# setwd('F:\\My Documents\\My UW\\Research\\1402 JSTOR text\\')
+# unzip('2013.1.1.E84E4jrp.AA.zip', exdir = "AA")
+# setwd('F:\\My Documents\\My UW\\Research\\1402 JSTOR text\\AA')
+# unpack1grams <- JSTOR_unpack1grams()
+
+### from here we can just load the data like so
+load("data/kretzler_and_marwick.RData")
+```
+
+
+```{r prep-data}
+# subset the words to get nouns only
+nouns <-  JSTOR_dtmofnouns(unpack1grams, sparse = 0.99)
+# edit stop words and re-run, find stopwords file
+```
+
+
+```{r}
+JSTOR_2words(unpack1grams, "gender", c("feminism", "feminist"), span = 0.55)
+```
+
+```{r}
+JSTOR_2wordcor(unpack1grams, c("labor", "task", "role", "hunt", "gather", "hunter", "gatherer"), c("gender"), span = 0.7)
+```
+
+```{r}
+JSTOR_2wordcor(unpack1grams, c("symbol", "symbolism", "sexuality", "visual", "representation", "symbolic","identity", "materiality", "ethnicity", "queer", "engender"), c("gender"), span = 0.6)
+```
+
+
+```{r}
+gender <- JSTOR_clusterbywords(unpack1grams$wordcounts, 'gender', f = 0.01)
+```
+
+
+
+
+
+```{r topic-model}
+# generate topic model with 50 topics (an arbitrary choice)
+my_model <- JSTOR_lda(unpack1grams, nouns, 300)
+# plot and tabulate hot and cold topics
+JSTOR_lda_hotncoldtopics(my_model)
+```
+
+
+```{r topic-explore}
+result <- my_model$model
+
+## Number of documents to display
+N <- 100
+## Number of topics
+K <- 300
+## Number of words per topic
+W <- 100
+
+## Get the top words in the cluster
+top.words <- data.frame(top.topic.words(result$topics, W, by.score=TRUE))
+
+```
+
+
+
+```{r}
+# apply to actual data...
+
+x <- t(top.words)
+
+rowIndices <- t(combn(nrow(x), 2))
+
+r <- data.frame(row1 = row.names(x)[rowIndices[, 1]], 
+           row2 = row.names(x)[rowIndices[, 2]],
+      sent_dist = apply(rowIndices, 1, function(y) length(which(x[y[1] , ] !=  x[y[2] , ])) / ncol(x))
+      )
+
+# display most similar pairs of topics
+head(r[with(r, order(sent_dist)),])
+
+# inspect words that are similar
+x[2,][x[2,] %in% x[253,]]
+
+# make distance matrix
+mat <- matrix(ncol = K, nrow = K)
+mat[lower.tri(mat)] <-  r$sent_dist
+dist <- as.dist(mat)
+library(vegan)
+set.seed(42)
+pco <- capscale(dist ~ 1, add = TRUE)
+plot(pco)
+
+```
+
+
+topic.proportions <- t(result$document_sums) / colSums(result$document_sums)
+
+topic.proportions <- topic.proportions[sample(1:dim(topic.proportions)[1], N),]
+
+topic.proportions[is.na(topic.proportions)] <-  1 / K
+
+colnames(topic.proportions) <- apply(top.words, 2, paste, collapse=" ")
+
+topic.proportions.df <- melt(cbind(data.frame(topic.proportions),
+                                   document=factor(1:N)),
+                                   variable.name="topic",
+                                  id.vars = "document") 
+                               
+                               
+top.words.c <- apply(top.words, 1, function(i) paste0(i, collapse = " "))
+top.words.l <- lexicalize(top.words.c, lower=TRUE)
+top.words.l1 <- lapply(1:length(top.words.l[[1]]), function(i) top.words.l$documents[[i]][1,])
+# each row is a topic
+top.words.l1df <- do.call("rbind", top.words.l1)
+
+library(rioja)
+diss <- dist(top.words.l1df)
+cl <- chclust(diss, method = "coniss")
+windows()
+plot(cl)                               
+                               
+# data
+sent1 <- c("I", "have", "a", "big", "blue", "apple")
+sent2 <- c("I", "am", "a", "big", "red", "pear")
+# create dictionary
+jws <- sort(unique(c(sent1, sent2)))
+# get index values for words in dictionary
+sent1_v <-  paste0(match(sent1, jws), collapse = "")
+sent2_v <-  paste0(match(sent2, jws), collapse = "")
+# find edit distance
+adist(sent1_v, sent2_v)
+
+
+# data
+sent1 <- c("I", "have", "a", "big", "blue", "apple", "on", "the", "far", "side", "of", "the", "moon")
+sent2 <- c("I", "am", "a", "big", "red", "pear", "red", "pear", "red", "pear", "red", "moon", 'moon')
+
+# find proportion of total words not in order, only works with same number of words per sentence
+length(which(sent2 != sent1 )) / length(sent1)
+
+# slightly bigger example...
+
+x <-  data.frame(rbind (  c("ape", "bonobo", "chimp", "probis"), 
+                          c("ape", "bonobo", "chimp", "orang"), 
+                          c("chimp", "chimp", "chimp", "probis")
+                       ))
+
+rowIndices <- t(combn(nrow(x), 2))
+
+data.frame(row1 = row.names(x)[rowIndices[, 1]], 
+           row2 = row.names(x)[rowIndices[, 2]],
+      sent_dist = apply(rowIndices, 1, function(y) length(which(x[y[1] ,] !=  x[y[2] ,])))
+      )

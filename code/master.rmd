@@ -9,9 +9,7 @@ output: html_document
 
 ### What is textual macroanalysis?
 
-The conventional way we read scholarly literature is sometimes 
-described as a 'close reading'. This means we read word-by-word
-and mentally thread together the meanings that emerge from sentences and paragraphs to interpret a piece of writing. In recent years an alternative reading method aided by computational methods has emerged. This method, known as 'distant reading', takes the view that text is a data object such that meaning can be extracted through counting, mapping and graphing patterns in 
+The conventional way we read scholarly literature is sometimes described as a 'close reading'. This means we read word-by-word and mentally thread together the meanings that emerge from sentences and paragraphs to interpret a piece of writing. In recent years an alternative reading method aided by computational methods has emerged. This method, known as 'distant reading', takes the view that text is a data object such that meaning can be extracted through counting, mapping and graphing patterns in 
 the data. We refer to this as 'textual macroanalysis' 
 to identify the data type as text and the level of analysis 
 as macroscopic to refer to a single article as a unit of 
@@ -20,11 +18,7 @@ which concentrates on words or sentences within in article.
 
 ### The JSTORr package and R
 
-Perhaps the best known tool for distant reading is the Google
-Books ngram viewer. This allows the user to inspect the rise
-and fall of a word or phrase in 5 million books scanned by Google. A key problem is that we don't know what books are in Google's
-sample. Since we are specifically interested in scholarly articles about archaeology, we chose instead to focus on JSTOR's collection, and wrote software to analyse and visualise words
-in JSTOR's holdings of the journal 'American Antiquity'. Our software is written in the R language and is freely available
+Perhaps the best known tool for distant reading is the Google Books ngram viewer. This allows the user to inspect the rise and fall of a word or phrase in 5 million books scanned by Google. A key problem is that we don't know what books are in Google's sample. Since we are specifically interested in scholarly articles about archaeology, we chose instead to focus on JSTOR's collection, and wrote software to analyse and visualise words in JSTOR's holdings of the journal 'American Antiquity'. Our software is written in the R language and is freely available
 at github.com.
 
 
@@ -62,15 +56,42 @@ load("data/kretzler_and_marwick.RData")
 
 ```{r}
 JSTOR_2words(unpack1grams, "gender", c("feminism", "feminist"), span = 0.55, yearfrom = 1980)
+ggsave("figures/2words_gender_feminism.png")
+ggsave("figures/2words_gender_feminism.svg")
 ```
 
 ```{r}
-JSTOR_2wordcor(unpack1grams, c("labor", "task", "role", "hunt", "gather", "hunter", "gatherer"), c("gender"), span = 0.7)
+JSTOR_2wordcor(unpack1grams, c("labor", "task", "role", "hunt", "gather", "hunter", "gatherer"), c("gender"), span = 0.7, yearfrom = 1980)
+ggsave("figures/2words_labor_gender.png")
+ggsave("figures/2words_labor_gender.svg")
 ```
 
 ```{r}
-JSTOR_2wordcor(unpack1grams, c("symbol", "symbolism", "sexuality", "visual", "representation", "symbolic","identity", "materiality", "ethnicity", "queer", "engender"), c("gender"), span = 0.6)
+JSTOR_2wordcor(unpack1grams, c("symbol", "symbolism", "sexuality", "visual", "representation", "symbolic","identity", "materiality", "ethnicity", "queer", "engender"), c("gender"), span = 0.6, yearfrom = 1980)
+ggsave("figures/2words_symbol_gender.png")
+ggsave("figures/2words_symbol_gender.svg")
 ```
+
+
+
+```{r}
+JSTOR_2wordcor(unpack1grams, c("symbol", "symbolism", "sexuality", "visual", "representation", "symbolic","identity", "materiality", "ethnicity", "queer", "engender"), c("archaeology", "archaeological", "archaeologists"), yearfrom = 1980)
+ggsave("figures/2words_symbol_archaeology.png")
+ggsave("figures/2words_symbol_archaeology.svg")
+```
+
+
+```{r}
+JSTOR_2wordcor(unpack1grams, c("labor", "task", "role", "hunt", "gather", "hunter", "gatherer"), c("archaeology", "archaeological", "archaeologists"), yearfrom = 1980)
+ggsave("figures/2words_labor_archaeology.png")
+ggsave("figures/2words_labor_archaeology.svg")
+```
+
+
+
+
+
+
 
 
 ```{r}

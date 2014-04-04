@@ -31,7 +31,7 @@ at github.com.
 ```{r setup}
 library(devtools)
 # download and install the package (do this only once ever per computer)
-install_github(repo = "JSTORr", username = "benmarwick")
+install_github("benmarwick/JSTORr")
 library(JSTORr)
 ```
 
@@ -55,13 +55,13 @@ load("data/kretzler_and_marwick.RData")
 
 ```{r prep-data}
 # subset the words to get nouns only
-nouns <-  JSTOR_dtmofnouns(unpack1grams, sparse = 0.99)
+# nouns <-  JSTOR_dtmofnouns(unpack1grams, sparse = 0.99)
 # edit stop words and re-run, find stopwords file
 ```
 
 
 ```{r}
-JSTOR_2words(unpack1grams, "gender", c("feminism", "feminist"), span = 0.55)
+JSTOR_2words(unpack1grams, "gender", c("feminism", "feminist"), span = 0.55, yearfrom = 1980)
 ```
 
 ```{r}

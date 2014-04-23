@@ -58,6 +58,27 @@ load("data/kretzler_and_marwick.RData")
 JSTOR_2words(unpack1grams, "gender", c("feminism", "feminist"), span = 0.55, yearfrom = 1980)
 ggsave("figures/2words_gender_feminism.png")
 ggsave("figures/2words_gender_feminism.svg")
+
+# how many words and articles in that sample?
+gender <- as.matrix(unpack1grams$wordcounts[,"gender" ])
+colSums(gender)
+# 963 instances of the word
+sum(gender!=0)
+# 127 articles with the word
+
+feminism <- as.matrix(unpack1grams$wordcounts[,"feminism" ])
+colSums(feminism)
+# 35 instances of the word
+sum(feminism!=0)
+# 11 articles with the word
+
+feminist <- as.matrix(unpack1grams$wordcounts[,"feminist" ])
+colSums(feminist)
+# 185 instances of the word
+sum(feminist!=0)
+# 33 articles with the word
+
+
 ```
 
 ```{r}

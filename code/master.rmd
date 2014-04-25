@@ -7,20 +7,10 @@ output: html_document
 
 # A Brief Case Study: Gender Research and the Role of Feminist Theory
 
-### What is textual macroanalysis?
+Here we provide the code used to generate the figures in the 
+presentation.
 
-The conventional way we read scholarly literature is sometimes described as a 'close reading'. This means we read word-by-word and mentally thread together the meanings that emerge from sentences and paragraphs to interpret a piece of writing. In recent years an alternative reading method aided by computational methods has emerged. This method, known as 'distant reading', takes the view that text is a data object such that meaning can be extracted through counting, mapping and graphing patterns in 
-the data. We refer to this as 'textual macroanalysis' 
-to identify the data type as text and the level of analysis 
-as macroscopic to refer to a single article as a unit of 
-analysis, compared to the microscopic analysis of close reading
-which concentrates on words or sentences within in article.
-
-### The JSTORr package and R
-
-Perhaps the best known tool for distant reading is the Google Books ngram viewer. This allows the user to inspect the rise and fall of a word or phrase in 5 million books scanned by Google. A key problem is that we don't know what books are in Google's sample. Since we are specifically interested in scholarly articles about archaeology, we chose instead to focus on JSTOR's collection, and wrote software to analyse and visualise words in JSTOR's holdings of the journal 'American Antiquity'. Our software is written in the R language and is freely available
-at github.com.
-
+The data can be obtained freely from http://dfr.jstor.org/ We can share our data by request, but I don't think the JSTOR terms of service allow us to post it publically. 
 
 ```{r setup}
 library(devtools)
@@ -109,17 +99,13 @@ ggsave("figures/2words_labor_archaeology.svg")
 ```
 
 
-
-
-
+Below here is experimental work that didn't make it into the presentation
 
 
 
 ```{r}
 gender <- JSTOR_clusterbywords(unpack1grams$wordcounts, 'gender', f = 0.01)
 ```
-
-
 
 
 

@@ -1,5 +1,5 @@
 ---
-title: "test"
+title: ""
 author: Ian Kretzler & Ben Marwick
 date: Wednesday, March 26, 2014
 output: html_document
@@ -10,7 +10,9 @@ output: html_document
 Here we provide the code used to generate the figures in the 
 presentation.
 
-The data can be obtained freely from http://dfr.jstor.org/ We can share our data by request, but I don't think the JSTOR terms of service allow us to post it publically. 
+The data can be obtained freely from http://dfr.jstor.org/ 
+We can share our data by request, but we're not sure that
+the JSTOR terms of service allow us to post it publically. 
 
 ```{r setup}
 library(devtools)
